@@ -177,11 +177,7 @@ Machine Learning • AI • Supervised • Unsupervised • Neural Networks
 - No user tracking or analytics
 - Open source and transparent
 
----
 
-## 📄 License
-
-This project is for educational purposes.
 
 ---
 
