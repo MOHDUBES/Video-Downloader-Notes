@@ -1,0 +1,31 @@
+{
+    "name": "videograbber-backend",
+    "version": "1.0.0",
+    "description": "Backend API for VideoGrabber - Social Media Video Downloader",
+    "main": "js/server.js",
+    "scripts": {
+        "start": "node js/server.js",
+        "dev": "nodemon js/server.js"
+    },
+    "keywords": [
+        "video",
+        "downloader",
+        "youtube",
+        "instagram",
+        "social-media"
+    ],
+    "author": "",
+    "license": "MIT",
+    "dependencies": {
+        "@google/generative-ai": "^0.24.1",
+        "cors": "^2.8.5",
+        "dotenv": "^16.6.1",
+        "express": "^4.18.2",
+        "googleapis": "^128.0.0",
+        "multer": "^2.0.2",
+        "node-fetch": "^2.7.0"
+    },
+    "devDependencies": {
+        "nodemon": "^3.0.2"
+    }
+}

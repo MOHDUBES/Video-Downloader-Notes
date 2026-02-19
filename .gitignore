@@ -1,0 +1,6 @@
+node_modules/
+downloads/
+core/.env
+.env
+*.log
+test_output.txt

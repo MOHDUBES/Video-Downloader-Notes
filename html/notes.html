@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Notes</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="../style.css?v=2000006">
+</head>
+
+<body class="notes-page">
+    <div class="container">
+        <div class="header">
+            <h1>📝 Video Notes</h1>
+            <div class="actions">
+                <button class="btn btn-back" onclick="goBack()">← Back</button>
+                <button class="btn" onclick="window.print()">🖨️ Print</button>
+                <button class="btn" onclick="copyNotes()">📋 Copy</button>
+                <button class="btn" onclick="downloadPDF()">📕 PDF</button>
+            </div>
+        </div>
+
+        <div class="content-wrapper">
+            <div class="content" id="notesContent">
+                <p style="text-align: center; color: #9ca3af;">Loading notes...</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script>
+        // Markdown to HTML converter (same as app.js)
+        function markdownToHtml(text) {
+            if (!text) return "";
+            // Convert escaped newlines
+            text = text.replace(/\\n/g, '\n');
+            // Protect HTML
+            let html = text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+            // --- FORMATTING RULES ---
+            // Headers with Colors (PDF Friendly)
+            html = html.replace(/^# (.*?)$/gm, '<h1 style="color: #667eea; font-size: 24px; margin-top: 20px; border-bottom: 2px solid #ddd; padding-bottom: 10px;">$1</h1>');
+            html = html.replace(/^## (.*?)$/gm, '<h2 style="color: #764ba2; font-size: 20px; margin-top: 18px;">$1</h2>');
+            html = html.replace(/^### (.*?)$/gm, '<h3 style="color: #6b7280; font-size: 18px; margin-top: 15px;">$1</h3>');
+
+            // Bold & Italic
+            html = html.replace(/\*\*(.*?)\*\*/g, '<strong style="color: #374151;">$1</strong>');
+            html = html.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+
+            // Links - Critical Fix
+            html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" style="color: #4f46e5; text-decoration: underline; font-weight: 500;">$1</a>');
+
+            // Lists
+            html = html.replace(/^(\d+)\. (.*?)$/gm, '<div style="margin-left: 20px; margin-bottom: 5px;"><strong>$1.</strong> $2</div>');
+            html = html.replace(/^[•\-\*] (.*?)$/gm, '<div style="margin-left: 20px; margin-bottom: 5px;">• $1</div>');
+
+            // Timestamps
+            html = html.replace(/\[(\d{2}:\d{2}(?::\d{2})?)\]/g, '<span style="background:#e0e7ff; color:#4338ca; padding:2px 6px; border-radius:4px; font-size:12px; font-weight:600;">$1</span>');
+
+            // Paragraphs
+            html = html.replace(/\n\n/g, '<div style="margin-bottom: 15px;"></div>');
+            html = html.replace(/\n/g, '<br>');
+
+            return html;
+        }
+
+        // Load notes from sessionStorage
+        window.addEventListener('DOMContentLoaded', () => {
+            const notes = sessionStorage.getItem('generatedNotes');
+            const videoUrl = sessionStorage.getItem('videoUrl');
+
+            console.log('=== NOTES DEBUG ===');
+            console.log('Raw notes:', notes);
+            console.log('First 200 chars:', notes ? notes.substring(0, 200) : 'null');
+
+            if (notes) {
+                const html = markdownToHtml(notes);
+                console.log('Converted HTML (first 300 chars):', html.substring(0, 300));
+                document.getElementById('notesContent').innerHTML = html;
+            } else {
+                document.getElementById('notesContent').innerHTML = '<p style="text-align: center; color: #f87171;">No notes found. Please generate notes first.</p>';
+            }
+        });
+
+        function goBack() {
+            window.location.href = '/';
+        }
+
+        // Helper: Show Toast Notification
+        function showToast(message, isError = false) {
+            const toast = document.createElement('div');
+            toast.innerText = message;
+            Object.assign(toast.style, {
+                position: 'fixed',
+                top: '20px',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                background: isError ? '#ef4444' : '#10b981',
+                color: 'white',
+                padding: '12px 24px',
+                borderRadius: '8px',
+                boxShadow: '0 4px 20px rgba(0,0,0,0.4)',
+                fontFamily: "'Poppins', sans-serif",
+                fontSize: '14px',
+                fontWeight: '500',
+                zIndex: '9999',
+                opacity: '0',
+                transition: 'all 0.3s ease',
+                marginTop: '10px'
+            });
+            document.body.appendChild(toast);
+
+            // Animate in
+            requestAnimationFrame(() => {
+                toast.style.marginTop = '0px';
+                toast.style.opacity = '1';
+            });
+
+            // Animate out
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.marginTop = '-10px';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        function copyNotes() {
+            const content = document.getElementById('notesContent').innerText;
+            navigator.clipboard.writeText(content).then(() => {
+                showToast('✅ Notes copied to clipboard!');
+            }).catch(() => {
+                showToast('❌ Failed to copy notes', true);
+            });
+        }
+
+        function downloadPDF() {
+            // Use html2pdf for professional looking PDF that matches the screen
+            const element = document.getElementById('notesContent');
+
+            // Create a temporary clone for light-mode printing (better for ink/readability)
+            const clone = element.cloneNode(true);
+            clone.style.background = 'white';
+            clone.style.color = '#333';
+            clone.style.padding = '40px';
+            clone.style.fontFamily = 'Helvetica, Arial, sans-serif';
+
+            // Fix header colors in clone for white background
+            const headers = clone.querySelectorAll('h1, h2, h3, h4, strong');
+            headers.forEach(h => {
+                h.style.color = '#111';
+                h.style.textShadow = 'none';
+            });
+
+            // Fix text colors
+            const paragraphs = clone.querySelectorAll('p, li, div');
+            paragraphs.forEach(p => p.style.color = '#444');
+
+            const opt = {
+                margin: [0.5, 0.5], // Top, Left (inches)
+                filename: 'Video_Notes.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true },
+                jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+            };
+
+            showToast('⏳ Generating PDF...');
+
+            html2pdf().set(opt).from(clone).save().then(() => {
+                showToast('✅ PDF Downloaded!');
+            }).catch(err => {
+                console.error(err);
+                showToast('❌ PDF Error', true);
+            });
+        }
+    </script>
+</body>
+
+</html>
