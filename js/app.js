@@ -726,3 +726,44 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
+// ==========================================
+// Share Modal Logic
+// ==========================================
+document.addEventListener('DOMContentLoaded', () => {
+    const shareBtn = document.getElementById('shareBtn');
+    const shareModal = document.getElementById('shareModal');
+    const closeShareModal = document.getElementById('closeShareModal');
+    const copyShareLink = document.getElementById('copyShareLink');
+    const shareLink = document.getElementById('shareLink');
+
+    if (shareBtn && shareModal) {
+        shareBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            // Automatically update the link to current IP if needed
+            // But for now it's static in HTML as we detected it
+            shareModal.classList.add('active');
+        });
+
+        closeShareModal.addEventListener('click', () => {
+            shareModal.classList.remove('active');
+        });
+
+        shareModal.addEventListener('click', (e) => {
+            if (e.target === shareModal) {
+                shareModal.classList.remove('active');
+            }
+        });
+
+        if (copyShareLink) {
+            copyShareLink.addEventListener('click', () => {
+                shareLink.select();
+                document.execCommand('copy');
+                const originalText = copyShareLink.textContent;
+                copyShareLink.textContent = 'Copied!';
+                setTimeout(() => {
+                    copyShareLink.textContent = originalText;
+                }, 2000);
+            });
+        }
+    }
+});

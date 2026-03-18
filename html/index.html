@@ -61,6 +61,7 @@
                 <a href="#home" class="nav-link active">Home</a>
                 <a href="#features" class="nav-link">Features</a>
                 <a href="#supported" class="nav-link">Platforms</a>
+                <a href="#" class="nav-link" id="shareBtn"><i class="fas fa-share-alt"></i> Share App</a>
                 <button id="langToggle" class="lang-btn">English</button>
                 <!-- Hidden Google Widget -->
                 <div id="google_translate_element" style="display:none;"></div>
@@ -332,6 +333,28 @@
 
         <!-- jsPDF Library -->
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+        <!-- Share App Modal -->
+        <div class="modal-overlay" id="shareModal">
+            <div class="modal-card">
+                <button class="modal-close" id="closeShareModal">&times;</button>
+                <div class="modal-header">
+                    <div class="modal-icon">📱</div>
+                    <h3>Phone Par Check Karein</h3>
+                    <p>Niche diya gaya QR code scan karein aur apne phone par ye app chalayein.</p>
+                </div>
+                <div class="qr-container">
+                    <img id="qrImage" src="../assets/qr-code.png" alt="QR Code">
+                </div>
+                <div class="share-info">
+                    <p>Same WiFi par ye link kholiye:</p>
+                    <div class="copy-link-box">
+                        <input type="text" id="shareLink" value="http://192.168.1.10:3000" readonly>
+                        <button id="copyShareLink">Copy</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <script src="js/app.js?v=7"></script>
 
 </body>

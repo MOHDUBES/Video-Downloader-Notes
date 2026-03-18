@@ -9,6 +9,19 @@ const { google } = require('googleapis');
 const os = require('os');
 const { generateAIProfessionalNotes } = require('./ai-notes-generator');
 
+// Function to get local IP address
+function getLocalIP() {
+    const interfaces = os.networkInterfaces();
+    for (const name of Object.keys(interfaces)) {
+        for (const iface of interfaces[name]) {
+            if (iface.family === 'IPv4' && !iface.internal) {
+                return iface.address;
+            }
+        }
+    }
+    return 'localhost';
+}
+
 const execPromise = promisify(exec);
 
 
@@ -463,7 +476,12 @@ app.get('/', (req, res) => {
 });
 
 app.listen(PORT, () => {
-    console.log(`\n🚀 Server running at http://localhost:${PORT}`);
+    const localIP = getLocalIP();
+    console.log('\n' + '='.repeat(50));
+    console.log(`🚀 Video Downloader Server Started!`);
+    console.log(`🏠 Local:   http://localhost:${PORT}`);
+    console.log(`📱 Network: http://${localIP}:${PORT}`);
+    console.log('='.repeat(50));
     console.log('✅ NO AI DEPENDENCY - Pure text processing enabled\n');
 });
 
